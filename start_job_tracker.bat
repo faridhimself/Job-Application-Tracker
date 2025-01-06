@@ -4,5 +4,5 @@ call C:\Users\%USERNAME%\anaconda3\Scripts\activate.bat jobtracker
 echo Installing required packages...
 python -m pip install -r requirements.txt
 echo Starting Job Application Tracker...
-python desktop_app.py
+python app.py
 pause

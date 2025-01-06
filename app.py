@@ -16,7 +16,7 @@ DB_HOST = 'localhost'
 DB_PORT = '5432'
 DB_NAME = 'postgres'
 DB_USER = 'postgres'
-DB_PASSWORD = 'Qafqaz1995Arzu'  # <-- CHANGE TO YOUR PASSWORD
+DB_PASSWORD = 'yourpassword'  # <-- CHANGE TO YOUR PASSWORD
 
 #######################################
 # FLASK APP
@@ -39,8 +39,7 @@ def get_db_connection():
 
 def calculate_days_since_applied(application_date):
     """Calculates the number of days since the given application_date."""
-    reference_date = datetime(2025, 1, 1, 16, 21, 42)  # Using the provided timestamp
-    today = reference_date.date()
+    today = date.today()
     delta = today - application_date
     return delta.days
 
@@ -78,15 +77,21 @@ def get_weekly_stats():
     goal = 100
     progress = (weekly_count / goal) * 100
     
-    # Calculate days remaining in the week
-    today = datetime(2025, 1, 1, 17, 4, 30).date()  # Using provided timestamp
-    days_until_sunday = 7 - today.isoweekday()
+    # Calculate days remaining in the week (until Sunday)
+    today = datetime(2025, 1, 6, 15, 59, 18).date()  # Using provided timestamp
+    current_day = today.isoweekday()  # Monday is 1, Sunday is 7
+    days_until_sunday = 7 - current_day  # Days until Sunday
+    
+    # Calculate remaining applications and daily target
+    remaining_applications = goal - weekly_count
+    daily_target = remaining_applications / days_until_sunday if days_until_sunday > 0 else 0
     
     stats = {
         'weekly_count': weekly_count,
         'goal': goal,
         'progress': min(progress, 100),
-        'days_remaining': days_until_sunday
+        'days_remaining': days_until_sunday,
+        'daily_target': round(daily_target, 1)
     }
     print(f"Calculated stats: {stats}")
     return stats
@@ -196,13 +201,7 @@ def index():
                     <div class="col-md-4">
                         <div class="stats-card">
                             <h5 class="text-muted mb-0">Daily Target</h5>
-                            <div class="stats-number">
-                                {% if weekly_stats['days_remaining'] > 0 %}
-                                    {{ ((weekly_stats['goal'] - weekly_stats['weekly_count']) / weekly_stats['days_remaining']) | round(1) }}
-                                {% else %}
-                                    0
-                                {% endif %}
-                            </div>
+                            <div class="stats-number">{{ weekly_stats['daily_target'] }}</div>
                             <small class="text-muted">Applications needed per day</small>
                         </div>
                     </div>
